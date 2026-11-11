@@ -1,0 +1,721 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ДОСЬЕ · ERES · ШТРАФНИК · Л. РАЙНФЕЛЬД</title>
+<style>
+  *{margin:0;padding:0;box-sizing:border-box;user-select:none}
+  html,body{width:100%;min-height:100vh;background:#050608;overflow-x:hidden}
+  body{font-family:'Courier New','VT323','Lucida Console',monospace;color:#8ba2b5;position:relative}
+
+  /* ===== ЗАСТАВКА ===== */
+  #introScreen{position:fixed;inset:0;background:#050608;z-index:9999;display:flex;justify-content:center;align-items:center;transition:opacity .8s ease,visibility .8s ease}
+  #introScreen.hidden{opacity:0;visibility:hidden;pointer-events:none}
+  .intro-crt{position:fixed;inset:0;pointer-events:none;z-index:100;background:repeating-linear-gradient(0deg,rgba(0,0,0,.15) 0,rgba(0,0,0,0) 2px,rgba(0,0,0,.1) 4px,rgba(0,0,0,0) 6px);animation:scanMove 8s linear infinite}
+  @keyframes scanMove{0%{transform:translateY(0)}100%{transform:translateY(100%)}}
+  .intro-vignette{position:fixed;inset:0;pointer-events:none;z-index:99;background:radial-gradient(ellipse at center,transparent 40%,rgba(0,0,0,.85) 100%);box-shadow:inset 0 0 200px rgba(0,0,0,.9)}
+  .intro-red-glow{position:fixed;inset:0;pointer-events:none;z-index:98;background:radial-gradient(ellipse at center,transparent 55%,rgba(20,40,60,.3) 100%)}
+  .intro-container{position:relative;z-index:5;width:1100px;max-width:95vw;display:flex;flex-direction:column;align-items:center;gap:30px;animation:introFadeIn 1.2s ease-out}
+  @keyframes introFadeIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+  .intro-main{display:flex;align-items:flex-start;gap:40px;width:100%;padding:20px}
+  .intro-portrait{flex-shrink:0;width:220px;height:260px;border:2px solid #4da6ff;background:#0a0e14;position:relative;box-shadow:0 0 25px rgba(77,166,255,.25),inset 0 0 30px rgba(0,0,0,.9);overflow:hidden}
+  .intro-portrait img{width:100%;height:100%;object-fit:cover;object-position:center top;filter:contrast(1.1) saturate(.6) brightness(.9) hue-rotate(180deg) sepia(0.3)}
+  .intro-portrait::before,.intro-portrait::after{content:'';position:absolute;width:14px;height:14px}
+  .intro-portrait::before{top:6px;left:6px;border-top:2px solid #4da6ff;border-left:2px solid #4da6ff}
+  .intro-portrait::after{bottom:6px;right:6px;border-bottom:2px solid #4da6ff;border-right:2px solid #4da6ff}
+  .portrait-label{position:absolute;bottom:4px;left:8px;font-size:11px;color:#4da6ff;letter-spacing:2px;font-weight:bold;text-shadow:0 0 6px #4da6ff;z-index:2}
+  .intro-text{flex:1;display:flex;flex-direction:column;gap:14px;padding-top:6px}
+  .intro-title{font-size:52px;font-weight:normal;color:#e0f0ff;letter-spacing:2px;line-height:1;text-shadow:0 0 12px rgba(224,240,255,.15)}
+  .intro-subtitle{font-size:17px;color:#4da6ff;line-height:1.45;letter-spacing:.5px;text-shadow:0 0 8px rgba(77,166,255,.4)}
+  .intro-info{margin-top:10px;display:flex;flex-direction:column;gap:6px;font-size:16px;color:#8ba2b5;letter-spacing:.5px;text-shadow:0 0 8px rgba(77,166,255,.3)}
+  .intro-info .highlight{color:#7df9ff;font-weight:bold}
+  .intro-button-wrap{display:flex;flex-direction:column;align-items:center;gap:10px;width:100%;max-width:620px}
+  .intro-button{display:inline-block;padding:14px 38px;border:2px solid #4da6ff;background:transparent;color:#4da6ff;font-family:'Courier New',monospace;font-size:20px;letter-spacing:6px;text-transform:uppercase;cursor:pointer;transition:all .25s ease;text-shadow:0 0 8px rgba(77,166,255,.6);box-shadow:0 0 15px rgba(77,166,255,.15);position:relative;animation:buttonPulse 2.5s ease-in-out infinite;width:100%;max-width:620px}
+  @keyframes buttonPulse{0%,100%{box-shadow:0 0 15px rgba(77,166,255,.15)}50%{box-shadow:0 0 30px rgba(77,166,255,.4)}}
+  .intro-button:hover{background:#4da6ff;color:#050608;text-shadow:none;box-shadow:0 0 40px rgba(77,166,255,.8);animation:none}
+  .intro-button:active{transform:scale(.98)}
+  .intro-bar{width:100%;max-width:620px;height:2px;background:#111822;position:relative;overflow:hidden;box-shadow:0 0 12px rgba(77,166,255,.5)}
+  .intro-bar::before{content:'';position:absolute;top:0;left:0;height:100%;width:0;background:linear-gradient(90deg,#0f2233 0%,#4da6ff 40%,#7df9ff 100%);box-shadow:0 0 10px #7df9ff,0 0 20px rgba(125,249,255,.6);animation:barLoad 4s ease-in-out infinite}
+  @keyframes barLoad{0%{width:0}60%{width:100%}75%{width:100%}100%{width:100%;opacity:0}}
+  .intro-bar::after{content:'';position:absolute;top:0;left:0;width:100%;height:100%;background:linear-gradient(90deg,transparent 0%,rgba(125,249,255,.15) 50%,transparent 100%);animation:barShine 2.5s linear infinite}
+  @keyframes barShine{0%{transform:translateX(-100%)}100%{transform:translateX(100%)}}
+  .intro-footer{font-size:12px;color:#334455;letter-spacing:3px;margin-top:10px}
+
+  /* ===== ЗАГРУЗКА ===== */
+  #loadingScreen{position:fixed;inset:0;z-index:99999;pointer-events:none;opacity:0;background:#050608;display:flex;justify-content:center;align-items:center;transition:opacity .4s ease}
+  #loadingScreen.active{opacity:1;pointer-events:all}
+  .loading-kanji{position:absolute;inset:0;pointer-events:none;overflow:hidden;z-index:1;display:flex;flex-direction:column;justify-content:center;align-items:center;gap:20px;opacity:.06;filter:blur(.3px)}
+  .loading-kanji span{font-size:180px;font-weight:900;color:#4da6ff;letter-spacing:60px;text-shadow:0 0 40px #4da6ff,0 0 80px rgba(77,166,255,.7);line-height:1;white-space:nowrap}
+  .loading-kanji .kanji-small{font-size:90px;letter-spacing:40px;opacity:.7}
+  .loading-box{position:relative;z-index:5;width:90%;max-width:620px;display:flex;flex-direction:column;gap:18px;color:#8ba2b5;text-shadow:0 0 10px rgba(77,166,255,.5)}
+  .loading-title{font-size:22px;letter-spacing:6px;text-align:center;text-transform:uppercase;color:#4da6ff;animation:loadBlink 1s steps(2) infinite}
+  @keyframes loadBlink{0%,100%{opacity:1}50%{opacity:.55}}
+  .loading-subtitle{font-size:13px;letter-spacing:3px;text-align:center;color:#445566}
+  .loading-bar-track{width:100%;height:14px;border:2px solid #4da6ff;background:#0a0e14;position:relative;overflow:hidden;box-shadow:0 0 18px rgba(77,166,255,.3),inset 0 0 12px rgba(0,0,0,.8)}
+  .loading-bar-fill{position:absolute;top:0;left:0;height:100%;width:0;background:linear-gradient(90deg,#0f2233 0%,#4da6ff 50%,#7df9ff 100%);box-shadow:0 0 14px #7df9ff,0 0 28px rgba(125,249,255,.5);transition:width .15s linear}
+  .loading-footer{display:flex;justify-content:space-between;font-size:14px;letter-spacing:2px;color:#8ba2b5}
+  .loading-percent{font-weight:bold;color:#7df9ff;text-shadow:0 0 12px #7df9ff}
+  .loading-log{font-size:12px;color:#445566;letter-spacing:1px;min-height:16px;white-space:nowrap;overflow:hidden}
+
+  /* ===== ОСНОВНОЙ ===== */
+  #mainSite{display:flex;justify-content:center;align-items:flex-start;min-height:100vh;padding:16px;position:relative;opacity:0;transition:opacity 1s ease;background:#050608;animation:breathe 10s ease-in-out infinite}
+  #mainSite.visible{opacity:1}
+  @keyframes breathe{0%,100%{filter:brightness(1)}50%{filter:brightness(1.03)}}
+  .noise-overlay{position:fixed;inset:0;pointer-events:none;z-index:101;opacity:.04;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");mix-blend-mode:overlay}
+  .crt-overlay{position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:100;background:repeating-linear-gradient(0deg,rgba(0,0,0,.10) 0,rgba(0,0,0,0) 2px,rgba(0,0,0,.06) 4px,rgba(0,0,0,0) 6px);animation:scanMove 8s linear infinite}
+  .fish-eye{position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:0;background:radial-gradient(ellipse at center,transparent 50%,rgba(10,15,20,.5) 80%,rgba(0,0,0,.85) 100%);box-shadow:inset 0 0 140px rgba(0,0,0,.6)}
+  .side-frame{position:fixed;top:0;width:80px;height:100%;pointer-events:none;z-index:1;background:repeating-linear-gradient(45deg,#0f141a 0,#080a0d 3px,#141e28 6px,#080a0d 9px);opacity:.35;filter:blur(1px) brightness(.7)}
+  .side-frame-left{left:0;transform:skewX(2deg)}
+  .side-frame-right{right:0;transform:skewX(-2deg)}
+
+  .computer{position:relative;width:1120px;max-width:96vw;background:#080a0d;border:2px solid #4da6ff;border-radius:4px;padding:16px;box-shadow:0 0 0 1px #182a3a,0 0 30px rgba(77,166,255,.25),0 0 60px rgba(77,166,255,.1),inset 0 0 40px rgba(20,40,60,.3);z-index:2}
+  .screen{background:#050608;border:1px solid #182a3a;border-radius:2px;padding:14px 14px 12px;box-shadow:inset 0 0 50px rgba(20,40,60,.4)}
+
+  .title-bar{display:flex;justify-content:space-between;align-items:baseline;border-bottom:1px solid #4da6ff;padding-bottom:6px;margin-bottom:12px;color:#8ba2b5;text-shadow:0 0 8px rgba(77,166,255,.6);font-size:13px;letter-spacing:2px;gap:12px;flex-wrap:wrap;text-transform:uppercase}
+  .title-bar .main{color:#7df9ff;font-weight:bold;font-size:17px;text-shadow:0 0 12px #4da6ff}
+  .title-bar .mid{flex:1;text-align:center;font-size:11px;color:#445566;letter-spacing:3px}
+  .title-bar .date{color:#8ba2b5;font-size:12px;letter-spacing:2px}
+
+  .tabs{display:flex;gap:4px;margin-bottom:12px;flex-wrap:wrap}
+  .tab-btn{background:#080a0d;border:1px solid #334455;border-bottom:none;padding:6px 16px 5px;font-family:'Courier New',monospace;font-size:13px;font-weight:bold;color:#445566;text-shadow:0 0 6px rgba(77,166,255,.3);border-radius:2px 2px 0 0;cursor:pointer;transition:.15s;text-transform:uppercase;letter-spacing:2px}
+  .tab-btn:hover{background:#0f141a;color:#4da6ff;text-shadow:0 0 10px #4da6ff}
+  .tab-btn.active{background:#111822;color:#7df9ff;border-color:#4da6ff;box-shadow:0 0 20px rgba(77,166,255,.3),inset 0 -2px 0 #4da6ff;text-shadow:0 0 12px #7df9ff}
+
+  .tab-content{display:none;background:#050608;border:1px solid #182a3a;border-radius:2px;padding:16px;min-height:420px;box-shadow:inset 0 0 30px rgba(20,40,60,.3);color:#a0b3c6;font-size:13px;line-height:1.6}
+  .tab-content.active{display:block;animation:paneFade .3s ease-out}
+  @keyframes paneFade{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:translateY(0)}}
+
+  /* DOSSIER HEAD */
+  .dossier-head{display:flex;flex-wrap:wrap;gap:18px;margin-bottom:16px;padding-bottom:16px;border-bottom:1px dashed #182a3a}
+  .photo-frame{flex:0 0 220px;max-width:220px;height:270px;background:#0a0e14;border:1px solid #334455;padding:6px;box-shadow:0 0 0 1px #182a3a,0 0 18px rgba(77,166,255,.25),inset 0 0 30px rgba(20,40,60,.4);position:relative;overflow:hidden}
+  .photo-frame::before{content:'';position:absolute;inset:4px;border:1px solid #4da6ff;pointer-events:none;z-index:3;box-shadow:0 0 8px rgba(77,166,255,.5)}
+  .photo-frame img{width:100%;height:100%;object-fit:cover;object-position:center 15%;filter:contrast(1.1) saturate(.6) brightness(.85) hue-rotate(180deg) sepia(0.2);display:block}
+  .photo-frame .stamp{position:absolute;bottom:14px;right:14px;color:#4da6ff;font-size:13px;letter-spacing:4px;border:2px solid #4da6ff;padding:3px 10px;transform:rotate(-8deg);opacity:.5;text-shadow:0 0 6px #4da6ff;font-weight:bold;z-index:5;background:rgba(0,0,0,.4)}
+
+  .head-info{flex:1;min-width:280px;display:flex;flex-direction:column;gap:10px}
+  .head-name{font-size:26px;color:#7df9ff;letter-spacing:3px;text-shadow:0 0 14px #4da6ff,0 0 28px rgba(125,249,255,.4);font-weight:bold;text-transform:uppercase}
+  .head-sub{font-size:13px;color:#445566;letter-spacing:2px;border-left:2px solid #4da6ff;padding-left:10px}
+
+  .info-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:8px;margin-top:6px}
+  .info-cell{background:#080a0d;border:1px solid #182a3a;border-left:3px solid #4da6ff;padding:6px 10px;display:flex;flex-direction:column;gap:2px}
+  .info-cell .lbl{font-size:10px;color:#7df9ff;letter-spacing:2px;text-transform:uppercase;font-weight:bold;text-shadow:0 0 6px rgba(77,166,255,.6)}
+  .info-cell .val{font-size:14px;color:#a0b3c6;letter-spacing:.5px}
+
+  .section{margin-bottom:16px}
+  .section-title{font-size:14px;color:#7df9ff;letter-spacing:3px;text-transform:uppercase;font-weight:bold;border-bottom:1px solid #182a3a;padding-bottom:5px;margin-bottom:10px;text-shadow:0 0 8px rgba(77,166,255,.5);display:flex;align-items:center;gap:8px}
+  .section-title::before{content:'▸';color:#4da6ff;font-size:12px}
+
+  .text-block{color:#a0b3c6;font-size:13px;line-height:1.75;letter-spacing:.3px;white-space:pre-wrap}
+  .text-block strong{color:#c0d6e8;font-weight:normal;letter-spacing:.5px}
+
+  .cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:10px}
+  .card{background:#080a0d;border:1px solid #182a3a;border-left:3px solid #4da6ff;padding:10px 14px;box-shadow:inset 0 0 20px rgba(20,40,60,.3);position:relative;transition:.15s}
+  .card:hover{border-left-color:#7df9ff;box-shadow:inset 0 0 20px rgba(20,40,60,.3),0 0 15px rgba(77,166,255,.2)}
+  .card h4{font-size:13px;color:#7df9ff;letter-spacing:2px;text-transform:uppercase;margin-bottom:6px;padding-bottom:4px;border-bottom:1px solid #182a3a;text-shadow:0 0 8px rgba(77,166,255,.5);font-weight:bold}
+  .card ul{list-style:none;padding:0}
+  .card ul li{padding:3px 0 3px 12px;position:relative;font-size:12.5px;color:#a0b3c6;line-height:1.5;border-bottom:1px dashed #111822}
+  .card ul li:last-child{border-bottom:none}
+  .card ul li::before{content:'▪';position:absolute;left:0;color:#4da6ff;font-size:10px;top:5px}
+  .card ul li strong{color:#c0d6e8;font-weight:normal}
+
+  .classified{color:#7df9ff;background:#111822;border-left:2px solid #4da6ff;padding:1px 8px;letter-spacing:2px;font-weight:bold;text-shadow:0 0 8px #4da6ff;font-size:12px;display:inline-block;animation:pulse 2s ease-in-out infinite}
+  @keyframes pulse{0%,100%{box-shadow:0 0 6px rgba(77,166,255,.3)}50%{box-shadow:0 0 14px rgba(125,249,255,.7)}}
+
+  /* PERSONNEL */
+  .social-wrapper{display:flex;flex-direction:column;gap:14px}
+  .classifier-block{background:#080a0d;border:1px solid #334455;border-radius:2px;padding:12px 16px;box-shadow:inset 0 0 30px rgba(20,40,60,.3);display:flex;flex-wrap:wrap;justify-content:center;gap:8px 12px}
+  .rel-tag{display:inline-block;padding:4px 14px;border-radius:2px;font-size:13px;font-weight:bold;letter-spacing:1px;background:#080a0d;border:1px solid #334455;cursor:pointer;transition:.1s;color:#a0b3c6;text-shadow:0 0 6px rgba(77,166,255,.3)}
+  .rel-tag:hover{filter:brightness(1.3);transform:scale(1.02);border-color:#4da6ff;box-shadow:0 0 12px rgba(77,166,255,.4)}
+  .rel-tag.c-distrust{color:#e8c86a;border-color:#e8c86a;background:rgba(232,200,106,.08)}
+  .rel-tag.c-sad{color:#9a9a9a;border-color:#9a9a9a;background:rgba(154,154,154,.08)}
+  .rel-tag.c-neutral{color:#f0f0f0;border-color:#f0f0f0;background:rgba(240,240,240,.05)}
+  .rel-tag.c-friend{color:#6fcf97;border-color:#6fcf97;background:rgba(111,207,151,.08)}
+  .rel-tag.c-strong{color:#27ae60;border-color:#27ae60;background:rgba(39,174,96,.08)}
+  .rel-tag.c-love{color:#f1948a;border-color:#f1948a;background:rgba(241,148,138,.08)}
+  .rel-tag.c-dead{color:#1a1a1a;border-color:#555;background:rgba(212,212,212,.3)}
+  .rel-tag.c-enemy{color:#ff3333;border-color:#ff3333;background:rgba(255,50,50,.1)}
+  .rel-tag.c-fear{color:#5a7a9a;border-color:#5a7a9a;background:rgba(90,122,154,.08)}
+  .rel-tag.c-disappoint{color:#e8d8a0;border-color:#e8d8a0;background:rgba(232,216,160,.08)}
+  .rel-tag.c-cautious{color:#d97a3a;border-color:#d97a3a;background:rgba(217,122,58,.08)}
+  .rel-tag.c-regret{color:#4a7a9a;border-color:#4a7a9a;background:rgba(74,122,154,.1)}
+  .rel-tag.c-sympathy{color:#c97ac9;border-color:#c97ac9;background:rgba(201,122,201,.08)}
+  .rel-tag.c-respect{color:#ffcc44;border-color:#ffcc44;background:rgba(255,204,68,.1)}
+
+  .search-wrap{margin-bottom:12px;position:relative}
+  .search-input{width:100%;background:#080a0d;border:1px solid #182a3a;border-left:3px solid #4da6ff;padding:8px 12px 8px 34px;color:#7df9ff;font-family:'Courier New',monospace;font-size:13px;letter-spacing:2px;outline:none;transition:.15s}
+  .search-input::placeholder{color:#334455;letter-spacing:2px}
+  .search-input:focus{border-color:#4da6ff;box-shadow:0 0 12px rgba(77,166,255,.3)}
+  .search-wrap::before{content:'⌕';position:absolute;left:12px;top:50%;transform:translateY(-50%);color:#4da6ff;font-size:18px;pointer-events:none;font-weight:bold}
+
+  .social-lists{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+  .social-col{background:#080a0d;border:1px solid #182a3a;border-radius:2px;padding:12px 16px;box-shadow:inset 0 0 20px rgba(20,40,60,.3);min-height:260px;max-height:520px;overflow-y:auto}
+  .social-col::-webkit-scrollbar{width:4px;background:#080a0d}
+  .social-col::-webkit-scrollbar-thumb{background:#334455;border-radius:4px}
+  .social-col h3{font-family:'Courier New',monospace;color:#7df9ff;font-size:16px;letter-spacing:3px;border-bottom:1px solid #182a3a;padding-bottom:4px;margin-bottom:10px;text-shadow:0 0 12px rgba(77,166,255,.5);text-transform:uppercase}
+  .social-col .group-header{font-weight:bold;font-size:14px;color:#4da6ff;cursor:pointer;padding:6px 0 6px 10px;border-bottom:1px solid #111822;border-left:2px solid transparent;transition:.1s;display:block;text-shadow:0 0 6px rgba(77,166,255,.3);position:relative;letter-spacing:2px}
+  .social-col .group-header::after{content:'◂';position:absolute;right:6px;color:#334455;font-size:12px}
+  .social-col .group-header:hover{color:#7df9ff;background:#0f141a;text-shadow:0 0 10px #4da6ff;border-left-color:#4da6ff}
+  .social-col .group-header.open{color:#7df9ff;background:#111822;border-left-color:#7df9ff}
+  .social-col .group-header.open::after{content:'▾';color:#4da6ff}
+  .sub-items{padding-left:14px;margin:4px 0 8px;display:none;border-left:1px dashed #182a3a}
+  .sub-items.open{display:block}
+  .personnel-entry{display:flex;align-items:center;gap:8px;padding:5px 8px;border-bottom:1px solid #0a0e14;cursor:pointer;transition:.15s;font-size:13px;color:#a0b3c6;position:relative}
+  .personnel-entry:hover{background:#0f141a;color:#7df9ff;border-left:2px solid #4da6ff;padding-left:6px}
+  .personnel-entry.hidden{display:none}
+  .personnel-entry .personnel-name{flex:1;letter-spacing:.5px}
+  .personnel-entry .personnel-rel{font-size:10px;color:#445566;letter-spacing:2px;text-transform:uppercase}
+
+  /* === ИКОНКА NO DATE === */
+  .nodate-icon{
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    width:42px;
+    height:22px;
+    font-size:7px;
+    letter-spacing:1px;
+    color:#aaa;
+    background-color:#1f1f1f;
+    background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.4'/%3E%3C/svg%3E");
+    border:1px solid #555;
+    flex-shrink:0;
+    font-family:'Courier New',monospace;
+    font-weight:bold;
+    text-transform:uppercase;
+    box-shadow:inset 0 0 6px rgba(0,0,0,0.9);
+    text-shadow:0 0 4px rgba(0,0,0,0.9);
+    position:relative;
+    overflow:hidden;
+    border-radius:1px;
+  }
+  .nodate-icon::before{
+    content:'';
+    position:absolute;
+    inset:0;
+    background:repeating-linear-gradient(0deg,rgba(0,0,0,0.35) 0px,rgba(0,0,0,0.35) 1px,transparent 1px,transparent 2px);
+    pointer-events:none;
+    z-index:1;
+  }
+  .nodate-icon span{position:relative;z-index:2;}
+
+  .sub-items .empty-note{color:#334455;font-style:italic;letter-spacing:2px;font-size:12px;padding:6px 0}
+  .desc-panel{background:#080a0d;border:1px solid #182a3a;border-radius:2px;padding:14px 16px;margin-top:14px;min-height:200px;max-height:420px;overflow-y:auto;box-shadow:inset 0 0 30px rgba(20,40,60,.3);transition:all .15s}
+  .desc-panel::-webkit-scrollbar{width:4px;background:#080a0d}
+  .desc-panel::-webkit-scrollbar-thumb{background:#334455;border-radius:4px}
+  .desc-panel .empty-state{color:#334455;text-align:center;padding:40px 0;font-size:16px;letter-spacing:3px;text-transform:uppercase}
+
+  .footer-bar{display:flex;justify-content:space-between;margin-top:14px;color:#334455;font-size:11px;border-top:1px solid #182a3a;padding-top:6px;letter-spacing:2px;text-transform:uppercase;flex-wrap:wrap;gap:6px}
+
+  @media (max-width:900px){
+    .social-lists{grid-template-columns:1fr}
+  }
+  @media (max-width:750px){
+    .intro-main{flex-direction:column;align-items:center;gap:20px}
+    .intro-portrait{width:160px;height:190px}
+    .intro-title{font-size:32px;text-align:center}
+    .intro-subtitle,.intro-info{font-size:14px;text-align:center}
+    .intro-button{font-size:16px;letter-spacing:4px;padding:12px 24px}
+    .computer{padding:10px}
+    .tab-btn{font-size:11px;padding:5px 10px;letter-spacing:1px}
+    .photo-frame{flex:0 0 100%;max-width:100%;height:240px}
+    .head-name{font-size:20px}
+    .loading-kanji span{font-size:90px;letter-spacing:30px}
+    .loading-kanji .kanji-small{font-size:50px;letter-spacing:20px}
+  }
+</style>
+</head>
+<body>
+
+<!-- ===== ЭКРАН ЗАГРУЗКИ ===== -->
+<div id="loadingScreen">
+  <div class="intro-crt"></div>
+  <div class="intro-vignette"></div>
+  <div class="intro-red-glow"></div>
+  <div class="loading-kanji">
+    <span>記憶</span>
+    <span class="kanji-small">贖罪 ・ 絶望</span>
+    <span>生存</span>
+  </div>
+  <div class="loading-box">
+    <div class="loading-title">▸ ЗАГРУЗКА ДАННЫХ ◂</div>
+    <div class="loading-subtitle">AEON · СЛУЖБА БЕЗОПАСНОСТИ · ERES</div>
+    <div class="loading-bar-track"><div class="loading-bar-fill" id="loadingBarFill"></div></div>
+    <div class="loading-footer">
+      <span class="loading-log" id="loadingLog">> INIT...</span>
+      <span class="loading-percent" id="loadingPercent">0%</span>
+    </div>
+  </div>
+</div>
+
+<!-- ===== ЗАСТАВКА ===== -->
+<div id="introScreen">
+  <div class="intro-crt"></div>
+  <div class="intro-vignette"></div>
+  <div class="intro-red-glow"></div>
+  <div class="intro-container">
+    <div class="intro-main">
+      <div class="intro-portrait">
+        <img src="ava.jpeg" alt="LOWSTVEIN">
+        <span class="portrait-label">LOWSTVEIN</span>
+      </div>
+      <div class="intro-text">
+        <div class="intro-title">Лоуствейн Райнфельд</div>
+        <div class="intro-subtitle">Гештальт Штрафик · Медсестра<br>Оболочка: Гештальт · Статус: Осуждена</div>
+        <div class="intro-info">
+          <div><span class="highlight">Фракция:</span> AEON (Пенитенциарный)</div>
+          <div><span class="highlight">Рост / Вес:</span> 189 см · 76 кг</div>
+          <div><span class="highlight">Группа крови:</span> A(II) Rh⁺</div>
+          <div><span class="highlight">Место рождения:</span> Китеж</div>
+        </div>
+      </div>
+    </div>
+    <div class="intro-button-wrap">
+      <button class="intro-button" id="enterBtn">[ ОТКРЫТЬ ДОСЬЕ ]</button>
+      <div class="intro-bar"></div>
+    </div>
+    <div class="intro-footer">◈ ERES · ШТРАФНИК · Л. РАЙНФЕЛЬД ◈</div>
+  </div>
+</div>
+
+<!-- ===== ОСНОВНОЙ ===== -->
+<div id="mainSite">
+  <div class="crt-overlay"></div>
+  <div class="fish-eye"></div>
+  <div class="noise-overlay"></div>
+  <div class="side-frame side-frame-left"></div>
+  <div class="side-frame side-frame-right"></div>
+
+  <div class="computer">
+    <div class="screen">
+
+      <div class="title-bar">
+        <span class="main">◈ AEON · СЛУЖБА БЕЗОПАСНОСТИ · ДОСЬЕ</span>
+        <span class="mid">◆ ERES · ПОЯС АСТЕР ◆</span>
+        <span class="date">ЦИКЛ 2157 · 24.08</span>
+      </div>
+
+      <div class="tabs">
+        <div class="tab-btn active" data-tab="t1">ЛИЧНОЕ ДЕЛО</div>
+        <div class="tab-btn" data-tab="t2">ВНЕШНОСТЬ</div>
+        <div class="tab-btn" data-tab="t3">ОТНОШЕНИЯ</div>
+      </div>
+
+      <!-- ============== TAB 1 : ЛИЧНОЕ ДЕЛО ============== -->
+      <div id="t1" class="tab-content active">
+
+        <div class="dossier-head">
+          <div class="photo-frame">
+            <img src="ava.jpeg" alt="L. Rainfeld" onerror="this.style.display='none';this.parentNode.innerHTML+='<div style=&quot;color:#334455;text-align:center;padding:90px 10px;font-size:12px;letter-spacing:2px;&quot;>[ ФОТО НЕДОСТУПНО ]</div>'">
+            <span class="stamp">АРХИВ</span>
+          </div>
+          <div class="head-info">
+            <div class="head-name">Лоуствейн Райнфельд</div>
+            <div class="head-sub">Гештальт Штрафик · Служба Безопасности AEON</div>
+            <div class="info-grid">
+              <div class="info-cell"><span class="lbl">Возраст</span><span class="val">25 лет</span></div>
+              <div class="info-cell"><span class="lbl">Место рождения</span><span class="val">Китеж - Поместье Лоуствейн</span></div>
+              <div class="info-cell"><span class="lbl">Рост / Вес</span><span class="val">189 см · 76 кг</span></div>
+              <div class="info-cell"><span class="lbl">Группа крови</span><span class="val">Вторая положительная</span></div>
+              <div class="info-cell"><span class="lbl">Оболочка</span><span class="val">Гештальт</span></div>
+              <div class="info-cell"><span class="lbl">Статус</span><span class="val" style="color:#7df9ff">ОСУЖДЕНА · ШТРАФНИК</span></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="section">
+          <div class="section-title">Общие сведения</div>
+          <div class="text-block">Родилась на Китеже, за 7 лет до начала Революции. Семейство Лоуствейн не обладало гигантскими богатствами, но жило безбедно. Необразованные крестьяне, число душ которых доходило до сотни, работали на семейство, занимаясь добычей руды. Сама Лоуствейн обучалась в родном поместье. Родители готовили ее к продолжению рода. Но у девушки было собственное желание — стать опытным врачом. Несмотря на неодобрение, взрослые поддерживали её начинания.
+
+С началом Революции жизнь прервалась. Часть рабочих взбунтовалась, но была показательно казнена, что заставило остальных вернуться к работе. Однако доходы семьи упали. На третий месяц Революции последние прислуги подняли бунт. Глубокой ночью группа крестьян с факелами сожгла поместье. Глава семейства погиб, спасая жену и дочь. Выжившей Лоуствейн и её матери пришлось перебраться на морозный Рот-Фронт в поисках нового дома. За этим последовали голод, отсутствие денег и проблемы с жильем. В этот момент она отбросила стремление к медицине на долгие годы.
+
+После окончания восстания она отправилась в школу. В 11 лет Райнфельд застала окончание активной Революции. К ним относились как к бывшей аристократии. Мать отправилась преподавать в училище, а Лоуствейн училась в школе до 16 лет. Затем она закончила базовый колледж, закрепив медицинские знания дипломом. Она не была врачом, но полноценной медсестрой, готовой оказать первую и полевую помощь, — вполне.</div>
+        </div>
+
+        <div class="section">
+          <div class="section-title">Служебная история</div>
+          <div class="text-block">В 22 года Лоуствейн пришлось пройти обязательную военную службу. Она работала с ранеными рядовыми. Однако из-за своего не самого чистого прошлого она подвергалась травле. Начиналось с дедовщины со стороны старших и опытных сослуживцев. Постепенно отношения в коллективе ухудшались. Её выбрасывали на мороз, заставляя умолять о пощаде, оскорбляли даже младшие офицеры за неуспеваемость и плохую военную подготовку.
+
+В последний цикл службы ей оставили «финальный штрих». Глубокой ночью её привязали к койке и выкололи правый глаз. В её памяти осталась фраза: <strong>«Рабочий класс всегда возвращает долг»</strong>. Спорить смысла не было — она была запугана.
+
+В 23 года, по окончании службы, Лоуствейн устроилась в отдаленную клинику. Работа была нудной и утомительной. Так длилось до 25 лет, пока в палатах не оказался тяжело раненный младший офицер, который особенно недолюбливал Китежанку за прошлое. Тогда девушка вколола ему смертельную дозу обезболивающих и иных препаратов. За этим последовала мучительная смерть. Правду скрывать она не стала и сдалась самостоятельно, признавшись в убийстве гештальта. Именно за это она была отправлена на ERES в целях отработки.</div>
+        </div>
+
+        <div class="section">
+          <div class="section-title">Дислокация</div>
+          <div class="cards">
+            <div class="card">
+              <h4>▸ Место службы</h4>
+              <ul>
+                <li><strong>Объект:</strong> ERES (Штрафной батальон)</li>
+                <li><strong>Регион:</strong> Пояс Астер</li>
+                <li><strong>Роль:</strong> Полевой медик · Штрафник</li>
+                <li><strong>Статус объекта:</strong> Прибыла</li>
+              </ul>
+            </div>
+            <div class="card">
+              <h4>▸ Образование</h4>
+              <ul>
+                <li><strong>Уровень:</strong> Среднее профессиональное</li>
+                <li><strong>Учреждение:</strong> Базовый медицинский колледж</li>
+                <li><strong>Специализация:</strong> Медсестра широкого профиля</li>
+                <li><strong>Доп.:</strong> Обязательная военная служба</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- ============== TAB 2 : ВНЕШНОСТЬ ============== -->
+      <div id="t2" class="tab-content">
+
+        <div class="section">
+          <div class="section-title">Внешний облик гештальта</div>
+          <div class="text-block">Внешность азиатско-европейская. Взгляд пустой, без каких-либо эмоций, подавленный. Отличительная особенность — <strong>отсутствие правого глаза</strong>. Волосы, вероятно, темные, часто небрежно собраны. Физическая подготовка — стандартная военная. Одежда простая, практичная, неброская. Держится обособленно, старается слиться с окружением.</div>
+        </div>
+
+        <div class="section">
+          <div class="section-title">Физические данные</div>
+          <div class="cards">
+            <div class="card">
+              <h4>▸ Биометрия</h4>
+              <ul>
+                <li><strong>Рост:</strong> 189 см</li>
+                <li><strong>Вес:</strong> 76 кг</li>
+                <li><strong>Группа крови:</strong> Вторая положительная</li>
+                <li><strong>Пол:</strong> Женский</li>
+                <li><strong>Возраст:</strong> 25 лет</li>
+              </ul>
+            </div>
+            <div class="card">
+              <h4>▸ Особенности здоровья</h4>
+              <ul>
+                <li><strong>Травма:</strong> Отсутствие правого глаза</li>
+                <li><strong>Вредные привычки:</strong> Активное курение</li>
+                <li><strong>Темперамент:</strong> Интроверт</li>
+                <li><strong>Эмоц. устойчивость:</strong> Выше среднего</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+
+        <div class="section">
+          <div class="section-title">Психологический профиль</div>
+          <div class="text-block"><strong>Мировоззрение:</strong> Обыденное. <strong>Отношение к риску:</strong> не азартная. <strong>Отношение ко лжи:</strong> имеет место быть. <strong>Отношение к насилию:</strong> избегание. <strong>Отношение к одиночеству:</strong> привычность. <strong>Отношение к толпе:</strong> боязнь и избегание. <strong>Стресс-реакции:</strong> в кризисе действует. <strong>Конфликтное поведение:</strong> отступит. <strong>Стиль общения:</strong> холодный, с излишними формальностями.
+
+<strong>Отношение к прошлому:</strong> апатичность, его избегание. <strong>Отношение к будущему:</strong> малая надежда. <strong>Отношение к смерти:</strong> страх, желание любыми способами выжить.</div>
+        </div>
+
+        <div class="section">
+          <div class="section-title">Навыки и увлечения</div>
+          <div class="cards">
+            <div class="card">
+              <h4>▸ Способности и навыки</h4>
+              <ul>
+                <li>Оказание медицинской помощи</li>
+                <li>Базовая готовка</li>
+                <li>Организация работы рабочих</li>
+                <li>Игра на пианино</li>
+              </ul>
+            </div>
+            <div class="card">
+              <h4>▸ Хобби и предпочтения</h4>
+              <ul>
+                <li>Чтение книг</li>
+                <li>Игра на пианино (успокаивает)</li>
+                <li>Активное курение</li>
+                <li>Уединение</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- ============== TAB 3 : ОТНОШЕНИЯ ============== -->
+      <div id="t3" class="tab-content">
+        <div class="social-wrapper">
+
+          <div class="classifier-block">
+            <span class="rel-tag c-distrust">НЕДОВЕРИЕ</span>
+            <span class="rel-tag c-sad">ТОСКА</span>
+            <span class="rel-tag c-neutral">НЕЙТРАЛИТЕТ</span>
+            <span class="rel-tag c-friend">ДРУЖБА</span>
+            <span class="rel-tag c-strong">КРЕПКАЯ СВЯЗЬ</span>
+            <span class="rel-tag c-love">ЛЮБОВЬ</span>
+            <span class="rel-tag c-dead">МЁРТВ</span>
+            <span class="rel-tag c-cautious">НАСТОРОЖЕННОСТЬ</span>
+            <span class="rel-tag c-fear">СТРАХ</span>
+            <span class="rel-tag c-disappoint">РАЗОЧАРОВАНИЕ</span>
+            <span class="rel-tag c-respect">УВАЖЕНИЕ</span>
+            <span class="rel-tag c-regret">СОЖАЛЕНИЕ</span>
+            <span class="rel-tag c-sympathy">СИМПАТИЯ</span>
+            <span class="rel-tag c-enemy">ВРАЖДА</span>
+          </div>
+
+          <div class="search-wrap">
+            <input type="text" class="search-input" id="personnelSearch" placeholder="ПОИСК ПО ИМЕНИ...">
+          </div>
+
+          <div class="social-lists">
+            <!-- ===== РЕПЛИКИ ===== -->
+            <div class="social-col">
+              <h3>▸ РЕПЛИКИ</h3>
+
+              <span class="group-header" data-group="eulr">EULR</span>
+              <div class="sub-items" id="group-eulr">
+                <div class="personnel-entry" data-name="EULR.Полевой медик"><span class="nodate-icon"><span>NO DATE</span></span><span class="personnel-name">EULR (Медицинский блок)</span><span class="personnel-rel">НЕЙТРАЛИТЕТ</span></div>
+              </div>
+
+              <span class="group-header" data-group="star">STAR</span>
+              <div class="sub-items" id="group-star">
+                <div class="personnel-entry" data-name="STAR.Охрана"><span class="nodate-icon"><span>NO DATE</span></span><span class="personnel-name">STAR (Конвой)</span><span class="personnel-rel">НЕДОВЕРИЕ</span></div>
+              </div>
+
+              <span class="group-header" data-group="lstr">LSTR</span>
+              <div class="sub-items" id="group-lstr">
+                <div class="personnel-entry" data-name="LSTR.Техник"><span class="nodate-icon"><span>NO DATE</span></span><span class="personnel-name">LSTR (Инженерный отсек)</span><span class="personnel-rel">НЕЙТРАЛИТЕТ</span></div>
+              </div>
+
+              <span class="group-header" data-group="kahr">KAHR</span>
+              <div class="sub-items" id="group-kahr">
+                <div class="personnel-entry" data-name="KAHR"><span class="nodate-icon"><span>NO DATE</span></span><span class="personnel-name">KAHR — Командующая Ворона</span><span class="personnel-rel">СТРАХ</span></div>
+              </div>
+
+              <span class="group-header" data-group="fklr">FKLR</span>
+              <div class="sub-items" id="group-fklr">
+                <div class="personnel-entry" data-name="FKLR"><span class="nodate-icon"><span>NO DATE</span></span><span class="personnel-name">FKLR — Командующая Сокол</span><span class="personnel-rel">НАСТОРОЖЕННОСТЬ</span></div>
+              </div>
+            </div>
+
+            <!-- ===== ГЕШТАЛЬТЫ ===== -->
+            <div class="social-col">
+              <h3>▸ ГЕШТАЛЬТЫ</h3>
+
+              <span class="group-header" data-group="gscp">GSCP</span>
+              <div class="sub-items" id="group-gscp">
+                <div class="personnel-entry" data-name="GSCP.Мать"><span class="nodate-icon"><span>NO DATE</span></span><span class="personnel-name">Мать (Преподаватель)</span><span class="personnel-rel">КРЕПКАЯ СВЯЗЬ</span></div>
+                <div class="personnel-entry" data-name="GSCP.Штрафники"><span class="nodate-icon"><span>NO DATE</span></span><span class="personnel-name">Штрафной батальон</span><span class="personnel-rel">ИЗБЕГАНИЕ</span></div>
+                <div class="personnel-entry" data-name="GSCP.Бывшие товарищи"><span class="nodate-icon"><span>NO DATE</span></span><span class="personnel-name">Сослуживцы (Армия)</span><span class="personnel-rel">ВРАЖДА</span></div>
+              </div>
+
+            </div>
+          </div>
+
+          <div class="desc-panel" id="descPanel">
+            <div class="empty-state">◈ ОЖИДАНИЕ ВЫБОРА ПЕРСОНАЛА ◈</div>
+          </div>
+
+        </div>
+      </div>
+
+      <div class="footer-bar">
+        <span>⏻ AEON · ERES · v.3.2</span>
+        <span>◆ ДОКУМЕНТ ЗАСЕКРЕЧЕН ◆</span>
+        <span>ГЕШТАЛЬТ · Л. РАЙНФЕЛЬД</span>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<script>
+(function(){
+  const introScreen = document.getElementById('introScreen');
+  const mainSite = document.getElementById('mainSite');
+  const enterBtn = document.getElementById('enterBtn');
+  const loadingScreen = document.getElementById('loadingScreen');
+  const loadingBarFill = document.getElementById('loadingBarFill');
+  const loadingPercent = document.getElementById('loadingPercent');
+  const loadingLog = document.getElementById('loadingLog');
+
+  function playBeep(freq){
+    try{
+      const ctx = new (window.AudioContext||window.webkitAudioContext)();
+      const osc = ctx.createOscillator(), g = ctx.createGain();
+      osc.connect(g); g.connect(ctx.destination);
+      osc.frequency.value = freq || 600; osc.type = 'square';
+      g.gain.setValueAtTime(0.02, ctx.currentTime);
+      g.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.05);
+      osc.start(ctx.currentTime); osc.stop(ctx.currentTime + 0.05);
+    }catch(e){}
+  }
+
+  function playBootSound(){
+    try{
+      const ctx = new (window.AudioContext||window.webkitAudioContext)();
+      const osc = ctx.createOscillator(), g = ctx.createGain();
+      osc.connect(g); g.connect(ctx.destination);
+      osc.frequency.setValueAtTime(220, ctx.currentTime);
+      osc.frequency.exponentialRampToValueAtTime(880, ctx.currentTime + 0.4);
+      osc.type = 'sine';
+      g.gain.setValueAtTime(0.05, ctx.currentTime);
+      g.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.6);
+      osc.start(ctx.currentTime); osc.stop(ctx.currentTime + 0.6);
+    }catch(e){}
+  }
+
+  const logMessages = ["> INIT SYSTEM...","> CONNECTING TO PENAL NODE...","> AUTHENTICATING...","> LOADING CORE DATA...","> DECRYPTING ARCHIVE...","> VERIFYING SIGNATURE...","> LOADING PERSONNEL...","> MAPPING RELATIONS...","> FINALIZING...","> WARNING: SLOW NODE...","> RETRYING...","> ALMOST DONE..."];
+
+  function startLoading(callback){
+    loadingScreen.classList.add('active');
+    let percent = 0, logIndex = 0;
+    const interval = setInterval(()=>{
+      let step;
+      if(percent < 50) step = 1.5 + Math.random()*2;
+      else if(percent < 80) step = 0.8 + Math.random()*1.5;
+      else if(percent < 95) step = 0.3 + Math.random()*0.8;
+      else step = 0.15 + Math.random()*0.4;
+
+      percent += step;
+      if(percent >= 99){
+        percent = 99;
+        clearInterval(interval);
+        loadingLog.textContent = "> HOLD AT 99%...";
+        playBeep(400);
+
+        setTimeout(()=>{
+          loadingLog.textContent = "> COMPLETE.";
+          loadingPercent.textContent = "100%";
+          loadingBarFill.style.width = "100%";
+          playBootSound();
+          setTimeout(()=>{
+            loadingScreen.classList.remove('active');
+            if(typeof callback === 'function') callback();
+          }, 500);
+        }, 1200);
+      }
+
+      loadingBarFill.style.width = percent + '%';
+      loadingPercent.textContent = Math.floor(percent) + '%';
+      const newLogIndex = Math.floor(percent/9);
+      if(newLogIndex !== logIndex && newLogIndex < logMessages.length){
+        logIndex = newLogIndex;
+        loadingLog.textContent = logMessages[logIndex];
+        playBeep(600 + Math.random()*400);
+      }
+    }, 60);
+  }
+
+  enterBtn.addEventListener('click', ()=>{
+    startLoading(()=>{
+      introScreen.classList.add('hidden');
+      setTimeout(()=>mainSite.classList.add('visible'), 300);
+      window.scrollTo(0,0);
+    });
+  });
+
+  // Tabs
+  document.querySelectorAll('.tab-btn').forEach(btn=>{
+    btn.addEventListener('click', ()=>{
+      const id = btn.dataset.tab;
+      document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+      document.querySelectorAll('.tab-content').forEach(c=>c.classList.remove('active'));
+      btn.classList.add('active');
+      const pane = document.getElementById(id);
+      if(pane) pane.classList.add('active');
+      playBeep(600 + Math.random()*400);
+    });
+  });
+
+  // Group headers
+  document.querySelectorAll('.group-header').forEach(header=>{
+    header.addEventListener('click', function(){
+      const items = document.getElementById('group-' + this.dataset.group);
+      if(items){ items.classList.toggle('open'); this.classList.toggle('open'); playBeep(500); }
+    });
+  });
+
+  // Search
+  const searchInput = document.getElementById('personnelSearch');
+  if(searchInput) searchInput.addEventListener('input', function(){
+    const q = this.value.trim().toLowerCase();
+    document.querySelectorAll('.personnel-entry').forEach(entry=>{
+      const name = (entry.dataset.name || entry.textContent).toLowerCase();
+      entry.classList.toggle('hidden', q.length > 0 && !name.includes(q));
+    });
+    if(q.length > 0){
+      document.querySelectorAll('.sub-items').forEach(s=>s.classList.add('open'));
+      document.querySelectorAll('.group-header').forEach(h=>h.classList.add('open'));
+    }
+  });
+
+  // ===== ДАННЫЕ ПЕРСОНАЛА =====
+  const personnelData = {
+    "GSCP.Мать": {
+      rel: "КРЕПКАЯ СВЯЗЬ",
+      text: "Мать. Единственный близкий человек. После потери отца и переезда на Рот-Фронт она стала преподавать в училище, чтобы прокормить нас. Мы прошли через голод и лишения. Я стараюсь выжить ради неё, хотя надежды с каждым днем все меньше."
+    },
+    "GSCP.Штрафники": {
+      rel: "ИЗБЕГАНИЕ",
+      text: "Другие осужденные. Я не ищу с ними контакта. В толпе слишком много шума и агрессии, это вызывает лишь страх. Предпочитаю тихо выполнять свою работу и держаться в стороне."
+    },
+    "GSCP.Бывшие товарищи": {
+      rel: "ВРАЖДА",
+      text: "Те, кто оставил мне «финальный штрих». Рабочий класс всегда возвращает долг. Из-за них я потеряла глаз и веру в людей. Я ненавижу их, но еще больше боюсь."
+    },
+    "KAHR": {
+      rel: "СТРАХ",
+      text: "Командующая Ворона. Холодная, жестокая и прямолинейная. Её приказы не обсуждаются. Рядом с ней я чувствую себя мелкой сошкой, от которой в любой момент могут избавиться."
+    },
+    "FKLR": {
+      rel: "НАСТОРОЖЕННОСТЬ",
+      text: "Командующая Сокол. Кажется более спокойной, но задает слишком много вопросов. Стараюсь отвечать максимально формально, чтобы не привлекать к себе лишнего внимания."
+    },
+    "EULR.Полевой медик": {
+      rel: "НЕЙТРАЛИТЕТ",
+      text: "Реплики в медицинском блоке. С ними хотя бы понятно, чего ожидать — они выполняют свою программу. С ними можно работать, не опасаясь внезапного удара в спину."
+    },
+    "STAR.Охрана": {
+      rel: "НЕДОВЕРИЕ",
+      text: "Солдаты охраны. Они смотрят на меня как на преступницу. Я плачу им тем же — не доверяю ни на грамм. Если начнется заваруха, они первые, кто выстрелит."
+    },
+    "LSTR.Техник": {
+      rel: "НЕЙТРАЛИТЕТ",
+      text: "Инженеры. Они возятся со своими механизмами. Мне нет до них дела, как и им до меня. Иногда они помогают с медицинским оборудованием."
+    }
+  };
+
+  // Personnel click -> desc panel
+  document.querySelectorAll('.personnel-entry').forEach(entry=>{
+    entry.addEventListener('click', function(){
+      const name = this.dataset.name;
+      const panel = document.getElementById('descPanel');
+      const data = personnelData[name];
+
+      if(data){
+        const relClass = data.rel.includes('ДРУЖБА') ? 'c-friend' :
+                         data.rel.includes('КРЕПКАЯ СВЯЗЬ') ? 'c-strong' :
+                         data.rel.includes('УВАЖЕНИЕ') ? 'c-respect' :
+                         data.rel.includes('СТРАХ') ? 'c-fear' :
+                         data.rel.includes('ВРАЖДА') ? 'c-enemy' :
+                         data.rel.includes('НАСТОРОЖЕННОСТЬ') ? 'c-cautious' :
+                         data.rel.includes('НЕДОВЕРИЕ') ? 'c-distrust' :
+                         data.rel.includes('ИЗБЕГАНИЕ') ? 'c-disappoint' :
+                         data.rel.includes('НЕЙТРАЛИТЕТ') ? 'c-neutral' : 'c-neutral';
+                         
+        panel.innerHTML = `<div style="padding:12px 6px;">
+          <div style="font-family:'Courier New',monospace;color:#7df9ff;font-size:18px;letter-spacing:3px;margin-bottom:4px;text-shadow:0 0 10px #4da6ff;font-weight:bold;">▸ ${name}</div>
+          <div style="margin-bottom:12px;"><span class="rel-tag ${relClass}" style="font-size:11px;padding:2px 10px;">${data.rel}</span></div>
+          <div style="color:#a0b3c6;font-size:13px;line-height:1.7;letter-spacing:.3px;white-space:pre-wrap;">${data.text}</div>
+        </div>`;
+      } else {
+        panel.innerHTML = `<div style="padding:12px 6px;">
+          <div style="font-family:'Courier New',monospace;color:#7df9ff;font-size:18px;letter-spacing:3px;margin-bottom:8px;text-shadow:0 0 10px #4da6ff;font-weight:bold;">▸ ${name}</div>
+          <div style="color:#445566;font-size:12px;letter-spacing:2px;margin-bottom:12px;">[ ЗАПИСЬ ПУСТА · ЗАПОЛНИТЕ ПОЗЖЕ ]</div>
+          <div style="color:#334455;font-style:italic;letter-spacing:2px;font-size:12px;">— нет данных —</div>
+        </div>`;
+      }
+      playBeep(600);
+    });
+  });
+
+  // Generic click beep on cards
+  document.querySelectorAll('.card, .rel-tag, .info-cell').forEach(el=>{
+    el.addEventListener('click', ()=>playBeep(600 + Math.random()*400));
+  });
+})();
+</script>
+</body>
+</html>
