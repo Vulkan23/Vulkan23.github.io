@@ -20,8 +20,8 @@
   @keyframes introFadeIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
   .intro-main{display:flex;align-items:flex-start;gap:40px;width:100%;padding:20px}
   .intro-portrait{flex-shrink:0;width:220px;height:260px;border:2px solid #4da6ff;background:#0a0e14;position:relative;box-shadow:0 0 25px rgba(77,166,255,.25),inset 0 0 30px rgba(0,0,0,.9);overflow:hidden}
-  /* ИЗМЕНЕН ФИЛЬТР: убран sepia, скорректированы saturate и hue-rotate */
-  .intro-portrait img{width:100%;height:100%;object-fit:cover;object-position:center top;filter:contrast(1.1) saturate(0.4) brightness(0.9) hue-rotate(190deg)}
+  /* ИЗМЕНЕН ФИЛЬТР: Жесткий перевод в холодные тона + SVG рябь */
+  .intro-portrait img{width:100%;height:100%;object-fit:cover;object-position:center top;filter: url(#water-ripple) grayscale(100%) sepia(100%) hue-rotate(190deg) saturate(400%) brightness(0.8) contrast(1.2)}
   .intro-portrait::before,.intro-portrait::after{content:'';position:absolute;width:14px;height:14px}
   .intro-portrait::before{top:6px;left:6px;border-top:2px solid #4da6ff;border-left:2px solid #4da6ff}
   .intro-portrait::after{bottom:6px;right:6px;border-bottom:2px solid #4da6ff;border-right:2px solid #4da6ff}
@@ -91,8 +91,8 @@
   .dossier-head{display:flex;flex-wrap:wrap;gap:18px;margin-bottom:16px;padding-bottom:16px;border-bottom:1px dashed #182a3a}
   .photo-frame{flex:0 0 220px;max-width:220px;height:270px;background:#0a0e14;border:1px solid #334455;padding:6px;box-shadow:0 0 0 1px #182a3a,0 0 18px rgba(77,166,255,.25),inset 0 0 30px rgba(20,40,60,.4);position:relative;overflow:hidden}
   .photo-frame::before{content:'';position:absolute;inset:4px;border:1px solid #4da6ff;pointer-events:none;z-index:3;box-shadow:0 0 8px rgba(77,166,255,.5)}
-  /* ИЗМЕНЕН ФИЛЬТР: убран sepia, скорректированы saturate и hue-rotate */
-  .photo-frame img{width:100%;height:100%;object-fit:cover;object-position:center 15%;filter:contrast(1.1) saturate(0.4) brightness(0.85) hue-rotate(190deg);display:block}
+  /* ИЗМЕНЕН ФИЛЬТР: Жесткий перевод в холодные тона + SVG рябь */
+  .photo-frame img{width:100%;height:100%;object-fit:cover;object-position:center 15%;filter: url(#water-ripple) grayscale(100%) sepia(100%) hue-rotate(190deg) saturate(400%) brightness(0.8) contrast(1.2);display:block}
   .photo-frame .stamp{position:absolute;bottom:14px;right:14px;color:#4da6ff;font-size:13px;letter-spacing:4px;border:2px solid #4da6ff;padding:3px 10px;transform:rotate(-8deg);opacity:.5;text-shadow:0 0 6px #4da6ff;font-weight:bold;z-index:5;background:rgba(0,0,0,.4)}
 
   .head-info{flex:1;min-width:280px;display:flex;flex-direction:column;gap:10px}
@@ -227,6 +227,14 @@
 </style>
 </head>
 <body>
+
+<!-- SVG-фильтр для эффекта легкой водной ряби -->
+<svg style="width:0; height:0; position:absolute; pointer-events:none;">
+  <filter id="water-ripple">
+    <feTurbulence type="fractalNoise" baseFrequency="0.015" numOctaves="2" result="noise" />
+    <feDisplacementMap in="SourceGraphic" in2="noise" scale="4" xChannelSelector="R" yChannelSelector="G" />
+  </filter>
+</svg>
 
 <!-- ===== ЭКРАН ЗАГРУЗКИ ===== -->
 <div id="loadingScreen">
